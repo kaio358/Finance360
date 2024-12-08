@@ -59,7 +59,7 @@ router.get('/stock-info/:ticker', async (req, res) => {
 // Rota para ranking das ações com maiores valores de fechamento
 router.get('/maiores-valores', async (req, res) => {
     try {
-        console.log("oi?");
+        
         
         const resultado = await StockHistory.maioresValores();
         res.status(200).json(resultado);

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Chart from 'chart.js/auto';
 import './Portfolio.css'; 
-import { Link,useNavigate } from 'react-router-dom';
-const caminho = process.env.REACT_APP_API_URL
+import { Link, useNavigate } from 'react-router-dom';
+const caminho = process.env.REACT_APP_API_URL;
 
 const Portfolio = () => {
     const [investments, setInvestments] = useState([]);
     const [formState, setFormState] = useState({ id: '', ticker: '', value: '', quantity: '' });
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchInvestments = async () => {
@@ -16,13 +16,13 @@ const Portfolio = () => {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${document.cookie}`,
                     },
+                    credentials: 'include' // Certifique-se de incluir credenciais
                 });
 
                 if (!response.ok) {
                     alert('Erro ao carregar investimentos. Faça login novamente.');
-                    navigate('/login')
+                    navigate('/login');
                     return;
                 }
 
@@ -36,18 +36,19 @@ const Portfolio = () => {
         };
 
         fetchInvestments();
-    }, []);
+    }, [caminho, navigate]);
 
     const handleLogout = async () => {
         try {
-            const response = await fetch(`/logout`, {
+            const response = await fetch(`${caminho}/logout`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include' // Certifique-se de incluir credenciais
             });
 
             if (response.ok) {
                 alert('Logout realizado com sucesso!');
-                navigate('/login')
+                navigate('/login');
             } else {
                 alert('Erro ao tentar fazer logout.');
             }
@@ -61,12 +62,13 @@ const Portfolio = () => {
         const { id, ticker, value, quantity } = formState;
 
         const method = id ? 'PUT' : 'POST';
-        const url = id ? `${caminho}/investments/${id}` : '/investments';
+        const url = id ? `${caminho}/investments/${id}` : `${caminho}/investments`;
 
         try {
             const response = await fetch(url, {
                 method,
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Certifique-se de incluir credenciais
                 body: JSON.stringify({ ticker, value: parseFloat(value), quantity: parseInt(quantity) }),
             });
 
@@ -85,6 +87,7 @@ const Portfolio = () => {
         try {
             const response = await fetch(`${caminho}/investments/${id}`, {
                 method: 'DELETE',
+                credentials: 'include' // Certifique-se de incluir credenciais
             });
 
             if (response.ok) {
@@ -158,7 +161,7 @@ const Portfolio = () => {
                     </div>
                     <nav className="nav-links">
                         <ul>
-                            <button className="home-button" onClick={() =>  navigate('/')}>Tela Inicial</button>
+                            <button className="home-button" onClick={() => navigate('/')}>Tela Inicial</button>
                             <button id="logoutButton" onClick={handleLogout}>Sair</button>
                         </ul>
                     </nav>

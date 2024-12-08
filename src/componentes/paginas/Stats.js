@@ -1,43 +1,53 @@
 import { useState, useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import Chart from 'chart.js/auto';
-import { Link, useParams } from 'react-router-dom';
-import './Stats.css'; 
+import './Stats.css';
 
-const caminho = process.env.REACT_APP_API_URL
+const caminho = process.env.REACT_APP_API_URL;
 
 const Stats = () => {
-    const { ticker } = useParams();
+    const location = useLocation();
+    const [ticker, setTicker] = useState(null);
     const [stockInfo, setStockInfo] = useState(null);
     const [historicalData, setHistoricalData] = useState([]);
 
     useEffect(() => {
-        const fetchStockInfo = async () => {
-            try {
-                const response = await fetch(`${caminho}/stock-info/${ticker}`);
-                if (!response.ok) throw new Error('Erro ao buscar dados da ação');
+        // Extrair o valor do parâmetro "ticker" da query string
+        const queryParams = new URLSearchParams(location.search);
+        const tickerParam = queryParams.get('ticker');
+        setTicker(tickerParam);
+    }, [location.search]);
 
-                const data = await response.json();
-                setStockInfo(data);
-            } catch (error) {
-                console.error('Erro ao buscar dados da ação:', error);
-                setStockInfo({ error: 'Erro ao carregar informações da ação.' });
-            }
-        };
-
-        const fetchHistoricalData = async () => {
-            try {
-                const response = await fetch(`${caminho}/stock-history/${ticker}`);
-                if (!response.ok) throw new Error('Erro ao carregar dados históricos');
-
-                const data = await response.json();
-                setHistoricalData(data);
-                renderChart(data);
-            } catch (error) {
-                console.error('Erro ao carregar dados do gráfico:', error);
-            }
-        };
-
+    useEffect(() => {
         if (ticker) {
+            const fetchStockInfo = async () => {
+                try {
+                    const response = await fetch(`${caminho}/stock-info/${ticker}`);
+                    if (!response.ok) throw new Error('Erro ao buscar dados da ação');
+                    console.log(response);
+                    
+                    const data = await response.json();
+                    setStockInfo(data);
+                } catch (error) {
+                    console.error('Erro ao buscar dados da ação:', error);
+                    setStockInfo({ error: 'Erro ao carregar informações da ação.' });
+                }
+            };
+
+            const fetchHistoricalData = async () => {
+                try {
+                    const response = await fetch(`${caminho}/stock-history/${ticker}`);
+                    if (!response.ok) throw new Error('Erro ao carregar dados históricos');
+                    console.log(response);
+                    
+                    const data = await response.json();
+                    setHistoricalData(data);
+                    renderChart(data);
+                } catch (error) {
+                    console.error('Erro ao carregar dados do gráfico:', error);
+                }
+            };
+
             fetchStockInfo();
             fetchHistoricalData();
         }

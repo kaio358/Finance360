@@ -3,7 +3,7 @@ const Investments = require('../modulos/Investments');
 
 const router = express.Router();
 
-/// Middleware para verificar autenticação
+// Middleware para verificar autenticação
 router.use((req, res, next) => {
     if (!req.session.userId) {
         return res.status(401).json({ error: 'Não autenticado.' });
@@ -11,13 +11,14 @@ router.use((req, res, next) => {
     next();
 });
 
+// Obter investimentos
 router.get('/', async (req, res) => {
     try {
         const userId = req.session.userId;
         console.log('userId da sessão:', userId);
 
         const resultado = await Investments.sessaoInvestimento(userId);
-        res.status(200).json("resultado");
+        res.status(200).json(resultado);
     } catch (erro) {
         res.status(500).json({ error: 'Erro ao buscar investimentos.' });
     }
@@ -29,14 +30,10 @@ router.post('/', async (req, res) => {
         const { ticker, value, quantity } = req.body;
         const userId = req.session.userId;
 
-        if (!userId) {
-            return res.status(401).json({ error: 'Usuário não autenticado.' });
-        }
-
         console.log('Dados recebidos para o novo investimento:', { ticker, value, quantity, userId });
 
         const resultado = await Investments.adicionarInvestimento(userId, ticker, value, quantity);
-        res.status(200).json(resultado);
+        res.status(200).json({ message: 'Investimento adicionado com sucesso!', data: resultado });
     } catch (erro) {
         res.status(500).json({ error: 'Erro ao adicionar investimento.' });
     }
@@ -50,7 +47,7 @@ router.put('/:id', async (req, res) => {
         const userId = req.session.userId;
 
         const resultado = await Investments.atualizarInvestimento(ticker, value, quantity, id, userId);
-        res.status(200).json({ message: 'Investimento atualizado!' });
+        res.status(200).json({ message: 'Investimento atualizado com sucesso!', data: resultado });
     } catch (erro) {
         res.status(500).json({ error: 'Erro ao atualizar investimento.' });
     }
@@ -62,7 +59,7 @@ router.delete('/:id', async (req, res) => {
         const { id } = req.params;
         const userId = req.session.userId;
         const resultado = await Investments.deletarInvestimento(id, userId);
-        res.status(200).json({ message: 'Investimento excluído!' });
+        res.status(200).json({ message: 'Investimento excluído com sucesso!' });
     } catch (error) {
         res.status(500).json({ error: 'Erro ao excluir investimento.' });
     }

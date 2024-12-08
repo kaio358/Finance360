@@ -5,24 +5,34 @@ const caminho = process.env.REACT_APP_API_URL
 
 function Rankings() {
   const [rankings, setRankings] = useState({ maioresValores: [], earnings: [], receitas: [] });
-
   useEffect(() => {
     async function carregarRankings() {
-      try {
-        const responseMaioresValores = await fetch(`${caminho}/maiores-valores`);
-        const maioresValoresData = await responseMaioresValores.json();
-        const responseEarnings = await fetch(`${caminho}/earnings`);
-        const earningsData = await responseEarnings.json();
-        const responseReceitas = await fetch(`${caminho}/receitas`);
-        const receitasData = await responseReceitas.json();
-        setRankings({ maioresValores: maioresValoresData, earnings: earningsData, receitas: receitasData });
-      } catch (error) {
-        console.error('Erro ao carregar os rankings:', error);
-      }
+        try {
+            const responseMaioresValores = await fetch(`${caminho}/maiores-valores`);
+            if (!responseMaioresValores.ok) throw new Error('Erro ao carregar maiores valores');
+            const maioresValoresData = await responseMaioresValores.json();
+
+            const responseEarnings = await fetch(`${caminho}/earnings`);
+            if (!responseEarnings.ok) throw new Error('Erro ao carregar earnings');
+            const earningsData = await responseEarnings.json();
+
+            const responseReceitas = await fetch(`${caminho}/receitas`);
+            if (!responseReceitas.ok) throw new Error('Erro ao carregar receitas');
+            const receitasData = await responseReceitas.json();
+
+            setRankings({
+                maioresValores: Array.isArray(maioresValoresData) ? maioresValoresData : [],
+                earnings: Array.isArray(earningsData) ? earningsData : [],
+                receitas: Array.isArray(receitasData) ? receitasData : []
+            });
+        } catch (error) {
+            console.error('Erro ao carregar os rankings:', error);
+        }
     }
 
     carregarRankings();
-  }, []);
+}, [caminho]);
+
 
   return (
     <section className="rankings">

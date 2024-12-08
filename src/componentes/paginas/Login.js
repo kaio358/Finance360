@@ -1,11 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Login.css'
-const caminho = process.env.REACT_APP_API_URL
+import './Login.css';
+
+const caminho = process.env.REACT_APP_API_URL;
+
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        // Verifique se o usuário já está logado
+        const loggedIn = localStorage.getItem('loggedIn');
+        if (loggedIn === 'true') {
+            navigate('/portfolio'); // Redirecione para o portfólio se o usuário já estiver logado
+        }
+    }, [navigate]);
 
     const handleEmailChange = (e) => setEmail(e.target.value);
     const handlePasswordChange = (e) => setPassword(e.target.value);
@@ -17,14 +27,16 @@ const Login = () => {
             const response = await fetch(`${caminho}/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include', // Adicione isso para enviar cookies de sessão
                 body: JSON.stringify({ email, password }),
             });
 
             const result = await response.json();
 
             if (response.ok) {
+                localStorage.setItem('loggedIn', 'true'); // Armazene o estado de login no Local Storage
                 alert('Login bem-sucedido!');
-                navigate('/portfolio'); // Redireciona para a página do portfolio
+                navigate('/portfolio'); // Redireciona para a página do portfólio
             } else {
                 alert(`Erro: ${result.error}`);
             }
@@ -35,7 +47,7 @@ const Login = () => {
     };
 
     const handleBackClick = () => {
-        navigate('/')
+        navigate('/');
     };
 
     return (
