@@ -17,7 +17,7 @@ const Portfolio = () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    credentials: 'include' // Certifique-se de incluir credenciais
+                    credentials: 'include' 
                 });
 
                 if (!response.ok) {
@@ -43,10 +43,11 @@ const Portfolio = () => {
             const response = await fetch(`${caminho}/logout`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                credentials: 'include' // Certifique-se de incluir credenciais
+                credentials: 'include', // Certifique-se de enviar cookies de sessão
             });
-
+    
             if (response.ok) {
+                localStorage.removeItem('loggedIn'); 
                 alert('Logout realizado com sucesso!');
                 navigate('/login');
             } else {
@@ -56,6 +57,7 @@ const Portfolio = () => {
             console.error('Erro ao fazer logout:', error);
         }
     };
+    
 
     const handleFormSubmit = async (event) => {
         event.preventDefault();
@@ -87,7 +89,7 @@ const Portfolio = () => {
         try {
             const response = await fetch(`${caminho}/investments/${id}`, {
                 method: 'DELETE',
-                credentials: 'include' // Certifique-se de incluir credenciais
+                credentials: 'include' 
             });
 
             if (response.ok) {

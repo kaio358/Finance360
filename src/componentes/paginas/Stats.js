@@ -24,9 +24,11 @@ const Stats = () => {
                 try {
                     const response = await fetch(`${caminho}/stock-info/${ticker}`);
                     if (!response.ok) throw new Error('Erro ao buscar dados da ação');
-                    console.log(response);
+                 
                     
                     const data = await response.json();
+                   
+                    
                     setStockInfo(data);
                 } catch (error) {
                     console.error('Erro ao buscar dados da ação:', error);
@@ -38,9 +40,11 @@ const Stats = () => {
                 try {
                     const response = await fetch(`${caminho}/stock-history/${ticker}`);
                     if (!response.ok) throw new Error('Erro ao carregar dados históricos');
-                    console.log(response);
+                    
                     
                     const data = await response.json();
+                 
+                    
                     setHistoricalData(data);
                     renderChart(data);
                 } catch (error) {
@@ -52,7 +56,14 @@ const Stats = () => {
             fetchHistoricalData();
         }
     }, [ticker]);
-
+    const formatarData = (dataISO) => {
+        const data = new Date(dataISO); 
+        const dia = String(data.getDate()).padStart(2, '0'); 
+        const mes = String(data.getMonth() + 1).padStart(2, '0'); 
+        const ano = data.getFullYear(); 
+        return `${dia}/${mes}/${ano}`;
+    };
+    
     const renderChart = (data) => {
         const labels = data.map((item) => item.date).reverse();
         const closePrices = data.map((item) => item.close_price).reverse();
@@ -110,7 +121,7 @@ const Stats = () => {
                 <section id="action-summary" className="stock-container">
                     <div className="stock-header">
                         {stockInfo?.logourl && <img id="action-logo" src={stockInfo.logourl} alt="Logo da Empresa" />}
-                        <h2 id="action-title">{stockInfo?.ticker ? `${stockInfo.ticker} - ${stockInfo.long_name || 'Resumo'}` : 'Carregando...'}</h2>
+                        <h2 id="action-title">{stockInfo? stockInfo.at(-1).ticker ? `${stockInfo.at(-1).ticker} - ${stockInfo.long_name || 'Resumo'}` : 'Carregando...' : 'Carregando...'}</h2>
                     </div>
                     <div className="stock-content">
                         <div className="stock-graph">
@@ -118,17 +129,25 @@ const Stats = () => {
                         </div>
                         <div className="stock-info" id="action-details">
                             {stockInfo ? (
+                           
+                                
+                             
+                                
+                                
                                 stockInfo.error ? (
                                     <p>{stockInfo.error}</p>
                                 ) : (
+                                   
+                                   
                                     <>
+                                  
                                         <h3>Desempenho do Último Dia</h3>
-                                        <p><strong>Data:</strong> {stockInfo.date || 'N/A'}</p>
-                                        <p><strong>Preço de Abertura:</strong> R$ {stockInfo.open_price || 'N/A'}</p>
-                                        <p><strong>Preço de Fechamento:</strong> R$ {stockInfo.close_price || 'N/A'}</p>
-                                        <p><strong>Variação Percentual:</strong> {typeof stockInfo.change_percent === 'number' ? stockInfo.change_percent.toFixed(2) + "%" : "N/A"}</p>
-                                        <p><strong>Volume:</strong> {stockInfo.volume || 'N/A'}</p>
-                                        <p><strong>Earnings per share:</strong> {stockInfo.earnings_per_share || 'N/A'}</p>
+                                        <p><strong>Data:</strong> {formatarData(stockInfo.at(-1).date) || 'N/A'}</p>
+                                        <p><strong>Preço de Abertura:</strong> R$ {stockInfo.at(-1).open_price || 'N/A'}</p>
+                                        <p><strong>Preço de Fechamento:</strong> R$ {stockInfo.at(-1).close_price || 'N/A'}</p>
+                                        <p><strong>Variação Percentual:</strong> {typeof stockInfo.at(-1).change_percent === 'number' ? stockInfo[0].change_percent.toFixed(2) + "%" : "N/A"}</p>
+                                        <p><strong>Volume:</strong> {stockInfo.at(-1).volume || 'N/A'}</p>
+                                        <p><strong>Earnings per share:</strong> {stockInfo.at(-1).earnings_per_share || 'N/A'}</p>
                                     </>
                                 )
                             ) : (
