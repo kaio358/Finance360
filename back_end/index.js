@@ -25,9 +25,21 @@ app.use(session({
 }));
 
 app.use(cors({
-    origin: 'http://localhost:3000', 
-    credentials: true
+    origin: function (origin, callback) {
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'http://finance360bucket.s3-website-us-east-1.amazonaws.com'
+        ];
+        
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true); // Permitir requisição
+        } else {
+            callback(new Error('Origin not allowed by CORS')); // Bloquear requisição
+        }
+    },
+    credentials: true // Permitir envio de cookies/sessões
 }));
+
 
 
 app.use(bodyParser.json());
